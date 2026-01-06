@@ -1,0 +1,35 @@
+lastOpenedChartPath: Entry1.aff
+charts:
+- chartPath: Entry1.aff
+  audioPath: silence.ogg
+  jacketPath: SCVNE.png
+  baseBpm: 120
+  bpmText: 120
+  syncBaseBpm: true
+  title: Pack/Story Name
+  composer: N/A
+  charter: ''
+  alias: ''
+  difficulty: Future ?
+  difficultyColor: '#482B54FF'
+  skin:
+    side: light
+    note: ''
+  lastWorkingTiming: 1013
+  previewEnd: 5000
+- chartPath: ExampleEntry.aff
+  audioPath: silence.ogg
+  jacketPath: SCVNE.png
+  baseBpm: 120
+  bpmText: 120
+  syncBaseBpm: true
+  title: Pack/Story Name
+  composer: ''
+  charter: ''
+  alias: ''
+  difficulty: Entry 1
+  difficultyColor: '#E54A75FF'
+  skin:
+    side: light
+    note: ''
+  previewEnd: 5000
