@@ -1,3 +1,4 @@
+
 # SCVNE
 ArcCreate Scenecontrol Visual Novel Engine
 
@@ -35,13 +36,37 @@ There are however customization settings in there you can modify.
 
 - **scale** *(number)*: How big the sprite is by default.
 
-`defineExpression(character, expression, x, y)`
+`defineCharacterPart(character, partName, spritesheet, portraitsX, portraitsY , scale, offsetX, offsetY, sort)`
+
+- **character** *(string)*: Character identifier.
+
+- **partName** *(string)*: The part's identifier that you'll use in other functions.
+
+- **spritesheet & portraitsX / Y**: Same as `defineCharacter()`
+
+- **scale** *(number)*: How big the sprite is compared to the character, usually keep at 1.
+
+- **offsetX/Y (number)**: Position offset from the default position. (Usually a very small number)
+
+- **sort** *(number)*: How far it layers above or below the base character. Don't set to 0, this may cause Z-fighting.
+
+
+`defineExpression(character, expression, parts)`
 
 - **character** *(string)*: Character identifier.
 
 - **expression** *(string)*: The expression's identifier that you'll use in other functions.
 
-- **x / y** *(string)*: Where the expression is located in the spritesheet. (0,0 is the BOTTOM LEFT.)
+- **parts** *(table)*: A table containing the change in sprites for each part. Example below:
+
+```
+defineExpression("AOKA", "neutral",{
+["eyebrows"] = {0,0}, -- These coordinates define what
+["eyes"] = {0,0},     -- sprite in each spritesheet to use.
+["mouth"] = {0,0},    -- You only need to include the ones that actually change.
+["AOKA"] = {0,0},     -- Putting in the character identifier will change the base sprite.
+})
+```
 
 `defineBackground(name, image, scale)`
 
@@ -107,7 +132,17 @@ Adds a keyframe for a character's `translationX` and `translationY`.
 
 - **easing** *(string)*: [Easing](https://github.com/Tempestissiman/ArcadeScenecontrol/wiki/Easings).
 
+`rotateCharacter(timing, character, x, y, z, easing)`
+
+Adds a keyframe for a character's `translationX` and `translationY`.
+Note: used internally by `flipCharacter()`
+
+- **x / y / z** *(number)*: Rotation reached at `timing`. Set any of them to `nil` to not change it.
+
+- **easing** *(string)*: [Easing](https://github.com/Tempestissiman/ArcadeScenecontrol/wiki/Easings).
+
 `flipCharacter(timing, character, time)`
+Note: This will always set the character's `rotationY` to either 0 or 180 depending on the current rotation.
 
 - **time** *(number)*: How long it takes the character to flip around. Set to 0 to change instantly.
 
