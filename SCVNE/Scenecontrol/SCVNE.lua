@@ -50,7 +50,7 @@ textboxTriangles.textureOffsetY = Channel.saw("s",200000,1,0,0)
 
 --================= Misc Variables ================--
 autoAdvanceTimer = 2000 -- How long (ms) it should wait to show the next text when timing is set to -1
-characterInactiveAlpha = 150 -- Opacity of a character when they aren't talking
+characterInactiveDarken = 175 -- Opacity of a character when they aren't talking
 characterInactiveScale = 0.9 -- How much a character shrinks when they aren't talking
 
 
@@ -140,6 +140,7 @@ local displayNames = {}
 local characterScales = {}
 local characterPortraitsX = {}
 local characterPortraitsY = {}
+local characterParts = {}
 local backgrounds = {}
 
 Scene.hud.active = Channel.constant(0)
@@ -172,8 +173,8 @@ function showText(timing, speed, text, continuous, fromShowDialogue)
     auto = ending + autoAdvanceTimer
 
     if fromShowDialogue != true then
-        characters[previousCharacter].colorA.addKey(realTiming,255,"so")
-        characters[previousCharacter].colorA.addKey(realTiming+200,characterInactiveAlpha,"cnsti")
+        characters[previousCharacter].colorR.addKey(realTiming,255,"so")
+        characters[previousCharacter].colorR.addKey(realTiming+200,characterInactiveDarken,"cnsti")
 
         characters[previousCharacter].scaleX.addKey(realTiming,characterScales[previousCharacter]/characterPortraitsX[previousCharacter],"so")
         characters[previousCharacter].scaleX.addKey(realTiming+200,(characterScales[previousCharacter]/characterPortraitsX[previousCharacter])*characterInactiveScale,"cnsti")
@@ -201,10 +202,10 @@ function showDialogue(timing, character, expression, speed, text, continuous)
     end
 
     if character != previousCharacter then
-        characters[previousCharacter].colorA.addKey(realTiming,255,"so")
-        characters[previousCharacter].colorA.addKey(realTiming+200,characterInactiveAlpha,"cnsti")
-        characters[character].colorA.addKey(realTiming,characterInactiveAlpha,"so")
-        characters[character].colorA.addKey(realTiming+200,255,"cnsti")
+        characters[previousCharacter].colorR.addKey(realTiming,255,"so")
+        characters[previousCharacter].colorR.addKey(realTiming+200,characterInactiveDarken,"cnsti")
+        characters[character].colorR.addKey(realTiming,characterInactiveDarken,"so")
+        characters[character].colorR.addKey(realTiming+200,255,"cnsti")
 
         characters[previousCharacter].scaleX.addKey(realTiming,characterScales[previousCharacter]/characterPortraitsX[previousCharacter],"so")
         characters[previousCharacter].scaleX.addKey(realTiming+200,(characterScales[previousCharacter]/characterPortraitsX[previousCharacter])*characterInactiveScale,"cnsti")
@@ -235,8 +236,8 @@ function clearText(timing)
     namePlate.colorA.addKey(timing,255,"s")
     namePlate.colorA.addKey(timing+100,0,"cnsti")
     namePlateVisible = false
-    characters[previousCharacter].colorA.addKey(timing,255,"so")
-    characters[previousCharacter].colorA.addKey(timing+200,characterInactiveAlpha,"cnsti")
+    characters[previousCharacter].colorR.addKey(timing,255,"so")
+    characters[previousCharacter].colorR.addKey(timing+200,characterInactiveDarken,"cnsti")
 
     characters[previousCharacter].scaleX.addKey(timing,characterScales[previousCharacter]/characterPortraitsX[previousCharacter],"so")
     characters[previousCharacter].scaleX.addKey(timing+200,(characterScales[previousCharacter]/characterPortraitsX[previousCharacter])*characterInactiveScale,"cnsti")
@@ -247,7 +248,7 @@ function clearText(timing)
 end
 
 function defineCharacter(name, displayName, spritesheet, portraitsX, portraitsY , scale)
-    local charSprite = Scene.createSprite("Character Sprites/"..spritesheet,"default","background")
+    local charSprite = Scene.createSprite("Characters/"..spritesheet,"default","background")
     charSprite.sort = 10
     charSprite.translationX = Channel.keyframe().addKey(-99999,0,"cnsti")
     charSprite.translationY = Channel.keyframe().addKey(-99999,150,"cnsti")
@@ -258,8 +259,12 @@ function defineCharacter(name, displayName, spritesheet, portraitsX, portraitsY 
     charSprite.textureScaleY = 1/portraitsY
     charSprite.textureOffsetX = Channel.keyframe().addKey(-99999,0,"cnsti").setDefaultEasing("cnsti")
     charSprite.textureOffsetY = Channel.keyframe().addKey(-99999,portraitsY-1,"cnsti").setDefaultEasing("cnsti")
-    charSprite.colorA = Channel.keyframe().addKey(-99999,characterInactiveAlpha,"cnsti")
+    charSprite.colorR = Channel.keyframe().addKey(-99999,characterInactiveDarken,"cnsti")
+    charSprite.colorG = charSprite.colorR
+    charSprite.colorB = charSprite.colorR
+    charSprite.rotationX = Channel.keyframe()
     charSprite.rotationY = Channel.keyframe()
+    charSprite.rotationZ = Channel.keyframe()
     charSprite.active = Channel.keyframe().addKey(0,0,"cnsti")
 
     characters[name] = charSprite 
@@ -267,6 +272,29 @@ function defineCharacter(name, displayName, spritesheet, portraitsX, portraitsY 
     characterScales[name] = scale
     characterPortraitsX[name] = portraitsX
     characterPortraitsY[name] = portraitsY
+    characterParts[name] = {}
+end
+
+function defineCharacterPart(character, partName, spritesheet, portraitsX, portraitsY , scale, offsetX, offsetY, sort)
+    local partSprite = Scene.createSprite("Characters/"..spritesheet,"default","background")
+    partSprite.sort = 10 + sort
+    partSprite.translationX = offsetX
+    partSprite.translationY = offsetY
+    partSprite.scaleX = (characterPortraitsX[character]/portraitsX) * scale
+    partSprite.scaleY = (characterPortraitsY[character]/portraitsY) * scale
+    partSprite.layer = "Background"
+    partSprite.textureScaleX = 1/portraitsX
+    partSprite.textureScaleY = 1/portraitsY
+    partSprite.textureOffsetX = Channel.keyframe().addKey(-99999,0,"cnsti").setDefaultEasing("cnsti")
+    partSprite.textureOffsetY = Channel.keyframe().addKey(-99999,portraitsY-1,"cnsti").setDefaultEasing("cnsti")
+    partSprite.colorR = characters[character].colorR
+    partSprite.colorG = partSprite.colorR
+    partSprite.colorB = partSprite.colorR
+    partSprite.active = characters[character].active
+
+    characterParts[character][partName] = partSprite
+
+    partSprite.setParent(characters[character])
 end
 
 function defineBackground(name, image, scale)
@@ -279,30 +307,53 @@ function defineBackground(name, image, scale)
     backgrounds[name] = newbg
 end
 
-local expressions = {}
-function defineExpression(character, expression, x, y)
-    expressions[character..expression] = {["x"] = x, ["y"] = y}
+function defineCG(name, image, scale)
+    local newcg = Scene.createSprite("Backgrounds/"..image,"default","foreground")
+    newcg.layer = "Foreground"
+    newcg.sort = 0
+    newcg.active = Channel.keyframe().addKey(-99999, 0, "cnsti")
+    newcg.scaleX = scale
+    newcg.scaleY = scale
+    cgs[name] = newcg
 end
 
+local expressions = {}
+function defineExpression(character, expression, thetable)
+    expressions[character..expression] = thetable
+
+
+end
+
+
 function changeExpression(timing, character, expression)
-    characters[character].textureOffsetX.addKey(timing, expressions[character..expression]["x"], "cnsti")
-    characters[character].textureOffsetY.addKey(timing, expressions[character..expression]["y"], "cnsti")
+    for part, frame in pairs(expressions[character..expression]) do
+        if part == character then
+            characters[character].textureOffsetX.addKey(timing, frame[1])
+            characters[character].textureOffsetY.addKey(timing, frame[2])
+        else
+            characterParts[character][part].textureOffsetX.addKey(timing, frame[1])
+            characterParts[character][part].textureOffsetY.addKey(timing, frame[2])
+        end
+    end
+
+    --characters[character].textureOffsetX.addKey(timing, expressions[character..expression]["x"], "cnsti")
+    --characters[character].textureOffsetY.addKey(timing, expressions[character..expression]["y"], "cnsti")
 end
 
 function showCharacter(timing, character, fade)
     characters[character].active.addKey(timing,1,"cnsti")
     if fade != 0 then
-        characters[character].colorA.addKey(timing,0,"s")
+        characters[character].colorR.addKey(timing,0,"s")
     end
-    characters[character].colorA.addKey(timing+fade,characterInactiveAlpha,"cnsti")
+    characters[character].colorR.addKey(timing+fade,characterInactiveDarken,"cnsti")
 end
 
 function hideCharacter(timing, character, fade)
     characters[character].active.addKey(timing+fade,0,"cnsti")
     if fade != 0 then
-        characters[character].colorA.addKey(timing,characterInactiveAlpha,"s")
+        characters[character].colorR.addKey(timing,characterInactiveDarken,"s")
     end
-    characters[character].colorA.addKey(timing+fade,0,"cnsti")
+    characters[character].colorR.addKey(timing+fade,0,"cnsti")
 end
 
 function moveCharacter(timing, character, x, y, easing)
@@ -314,12 +365,27 @@ function moveCharacter(timing, character, x, y, easing)
     end
 end
 
-function flipCharacter(timing, character, time)
-    if time == 0 or not time then
-        characters[character].rotationY.addKey(timing,-1*(characters[character].rotationY.valueAt(timing)),"cnsti")
+function rotateCharacter(timing, character, x, y, z, easing)
+    if x != nil then
+        characters[character].rotationX.addKey(timing,x,easing)
     end
-    characters[character].rotationY.addKey(timing,characters[character].rotationY.valueAt(timing),"s")
-    characters[character].rotationY.addKey(timing+time,180+(characters[character].rotationY.valueAt(timing)),"cnsti")
+    if y != nil then
+        characters[character].rotationY.addKey(timing,y,easing)
+    end
+    if z != nil then
+        characters[character].rotationZ.addKey(timing,z,easing)
+    end
+end
+
+function flipCharacter(timing, character, time)
+    if time != 0 then
+        rotateCharacter(timing, character, nil, characters[character].rotationY.valueAt(timing), nil, "b")
+    end
+    if characters[character].rotationY.valueAt(timing) > 90 then
+        rotateCharacter(timing+time, character, nil, 0, nil, "b")
+    else
+        rotateCharacter(timing+time, character, nil, 180, nil, "b")
+    end
 end
 
 local previousBG = nil

@@ -1,4 +1,4 @@
-lastOpenedChartPath: Entry1.aff
+lastOpenedChartPath: ExampleEntry.aff
 charts:
 - chartPath: Entry1.aff
   audioPath: silence.ogg
@@ -10,15 +10,15 @@ charts:
   composer: N/A
   charter: ''
   alias: ''
-  difficulty: Future ?
-  difficultyColor: '#482B54FF'
+  difficulty: Entry 1
+  difficultyColor: '#E54A75FF'
   skin:
     side: light
     note: ''
   lastWorkingTiming: 1013
   previewEnd: 5000
 - chartPath: ExampleEntry.aff
-  audioPath: silence.ogg
+  audioPath: Sneaky Snitch.ogg
   jacketPath: SCVNE.png
   baseBpm: 120
   bpmText: 120
@@ -27,9 +27,13 @@ charts:
   composer: ''
   charter: ''
   alias: ''
-  difficulty: Entry 1
+  difficulty: Entry 0
   difficultyColor: '#E54A75FF'
   skin:
     side: light
     note: ''
+  lastWorkingTiming: 23077
   previewEnd: 5000
+editorSettings:
+  lastUsedPublisher: CcinoWrath
+  lastUsedPackageName: SCVNE
